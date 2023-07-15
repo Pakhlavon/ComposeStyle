@@ -6,6 +6,12 @@ import android.provider.CalendarContract.Colors
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.Dimension
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,10 +20,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,8 +34,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -129,34 +139,62 @@ class MainActivity : ComponentActivity() {
 ////                }
 //            }
 
-            val constraints = ConstraintSet{
-                val greenBox = createRefFor("greenbox")
-                val redBox = createRefFor("redbox")
+//            val constraints = ConstraintSet{
+//                val greenBox = createRefFor("greenbox")
+//                val redBox = createRefFor("redbox")
+//
+//                constrain(greenBox){
+//                    top.linkTo(parent.top)
+//                    start.linkTo(parent.start)
+//                    width = androidx.constraintlayout.compose.Dimension.value(100.dp)
+//                    height = androidx.constraintlayout.compose.Dimension.value(100.dp)
+//                }
+//                constrain(redBox){
+//                    top.linkTo(parent.top)
+//                    start.linkTo(greenBox.end)
+//                    width = androidx.constraintlayout.compose.Dimension.value(100.dp)
+//                    height = androidx.constraintlayout.compose.Dimension.value(100.dp)
+//                }
+//            }
+//
+//            ConstraintLayout(constraints, modifier =  Modifier.fillMaxSize()) {
+//                Box(modifier = Modifier
+//                    .background(Color.Green)
+//                    .layoutId("greenBox")
+//                )
+//                Box(modifier = Modifier
+//                    .background(Color.Red)
+//                    .layoutId("redbox")
+//                )
+//
+//
+//            }
 
-                constrain(greenBox){
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    width = androidx.constraintlayout.compose.Dimension.value(100.dp)
-                    height = androidx.constraintlayout.compose.Dimension.value(100.dp)
-                }
-                constrain(redBox){
-                    top.linkTo(parent.top)
-                    start.linkTo(greenBox.end)
-                    width = androidx.constraintlayout.compose.Dimension.value(100.dp)
-                    height = androidx.constraintlayout.compose.Dimension.value(100.dp)
-                }
-            }
-
-            ConstraintLayout(constraints, modifier =  Modifier.fillMaxSize()) {
-                Box(modifier = Modifier
-                    .background(Color.Green)
-                    .layoutId("greenBox")
+            var sizeState by remember { mutableStateOf(200.dp) }
+            val size by animateDpAsState(targetValue = sizeState,
+            tween(
+                durationMillis = 1000
+            )
                 )
-                Box(modifier = Modifier
-                    .background(Color.Red)
-                    .layoutId("redbox")
+            val infinitetransition = rememberInfiniteTransition()
+            val color by infinitetransition.animateColor(
+                initialValue = Color.Red,
+                targetValue = Color.Green,
+                animationSpec = infiniteRepeatable(
+                    tween(durationMillis = 2000),
+                    repeatMode = RepeatMode.Reverse
                 )
+            )
+            Box(modifier = Modifier
+                .size(size)
+                .background(color),
+                contentAlignment = Alignment.Center
+            )
+            {
+                Button(onClick = { sizeState += 50.dp }) {
+                    Text(text = "Increase Size")
 
+                }
 
             }
         }
